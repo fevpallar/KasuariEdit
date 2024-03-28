@@ -1,4 +1,4 @@
-package com.fevly.kasuariedit
+package com.fevly.kasuariprogroom
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.fevly.kasuariedit", appContext.packageName)
+        assertEquals("com.fevly.kasuariprogroo", appContext.packageName)
     }
 }

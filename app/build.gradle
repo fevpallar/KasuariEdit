@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.fevly.kasuariedit'
+    namespace 'com.fevly.kasuariprogroom'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.fevly.kasuariedit"
+        applicationId "com.fevly.kasuariprogroom"
         minSdk 24
         targetSdk 33
         versionCode 1

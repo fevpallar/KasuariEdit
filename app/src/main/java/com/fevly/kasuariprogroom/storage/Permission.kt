@@ -2,7 +2,7 @@
 Author : Fevly Pallar
 contact : fevly.pallar@gmail.com
 =========================================*/
-package com.fevly.kasuariedit.storage
+package com.fevly.kasuariprogroom.storage
 
 import android.Manifest
 import android.app.Activity
