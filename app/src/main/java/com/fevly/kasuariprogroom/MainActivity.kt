@@ -22,6 +22,7 @@ import com.fevly.kasuariprogroom.constants.Keywords
 import com.fevly.kasuariprogroom.storage.Permission
 import com.fevly.kasuariprogroom.storage.StorageManager
 import com.fevly.kasuariprogroom.storage.StorageUtil
+import com.fevly.kasuariprogroom.transmission.KasuariNetworkChannelManager
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,13 +37,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var storageManager: StorageManager
 
     lateinit var textProcessing: TextProcessing
+    lateinit var kasuariNetworkChannelManager : KasuariNetworkChannelManager
 
     lateinit var keyword: Keywords
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
 
         // [sementara] init custome keywords
         keyword = Keywords()
@@ -57,6 +60,9 @@ class MainActivity : AppCompatActivity() {
         permission = Permission()
         storageUtil = StorageUtil()
         storageManager = StorageManager(applicationContext)
+        kasuariNetworkChannelManager = KasuariNetworkChannelManager(applicationContext)
+        kasuariNetworkChannelManager.exposeServicePleaseDoItNowKasuari("sampleservicename",9999)
+
 
         editText = findViewById(R.id.editText)
         listView = findViewById(R.id.listview)
