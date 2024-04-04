@@ -1,7 +1,7 @@
 package com.fevly.kasuariprogroom.transmission
 
 import android.content.Context
-import com.fevly.kasuarinet.KasuariServiceExposer
+import com.fevly.kasuariprogroom.depend.KasuariServiceExposer
 
 /*==========================================
 Author : Fevly Pallar

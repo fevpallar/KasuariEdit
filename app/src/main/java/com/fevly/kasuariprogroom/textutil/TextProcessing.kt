@@ -1,8 +1,8 @@
-package com.fevly.kasuariprogroom
+package com.fevly.kasuariprogroom.textutil
 
-import android.util.Log
 import android.widget.EditText
 import android.widget.ListView
+import com.fevly.kasuariprogroom.CustomItem
 
 class TextProcessing {
 
