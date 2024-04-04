@@ -114,25 +114,19 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
 
                 val currText = s.toString()
-                /*=========================================================================
-                count selalu sama dng 1 jika space diketik diposisi manapun
 
-                waktu count=1 ==>> "start" = panjang sluruh text sebelumnya + 1 (space),
-                tapi karena 0-index based alhasil
-                "start" == panjang seluruh text sebelumnya (include space2 sebelumnya)
-                 ==========================================================================*/
-                Log.d("kasuariprogroom", "$currText")
+                Log.d("kasuariprogroom", "curr text = $currText")
                 Log.d("kasuariprogroom", "count = $count")
                 Log.d("kasuariprogroom", "start = $start")
-                /*Log.d("kasuariprogroom","")
-                Log.d("kasuariprogroom","")*/
-                if (count == 1 && currText[start] == ' ') { // Check if the last character typed is a space
-                    val parts = currText.split("\\s+".toRegex()) // Split text by spaces
-                    val lastPart: String = parts.lastOrNull() ?: ""
-                    Log.d("kasuariprogroom", "lastPart = $lastPart")
 
+                // note 040424, start = total chars + total current space
+                // start tetap sama diposisi manapun, terupdate saat space ditrigger
+                if (count == 1 && currText[start] != ' ') { // trigger diposisi mana sj yg match keyword
+                    val parts = currText.split("\\s+".toRegex())
+                    val lastPart: String = parts.lastOrNull() ?: ""
+                    //Log.d("kasuariprogroom", "lastPart = $lastPart")
                     val filterText: String = lastPart.trim().toLowerCase()
-                    Log.d("kasuariprogroom", "filterText = $filterText")
+                    //Log.d("kasuariprogroom", "filterText = $filterText")
 
                     val filteredSuggestions =
                         keyword.getKewordList().filter {
@@ -140,6 +134,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     textProcessing.replaceAndGetUpdatedtext(
                         start,
+                        count,
                         currText,
                         editText,
                         listView,
