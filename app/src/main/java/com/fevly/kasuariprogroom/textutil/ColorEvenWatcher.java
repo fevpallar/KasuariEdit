@@ -24,7 +24,7 @@ public class ColorEvenWatcher {
         if (startIndex != -1) {
             int endIndex = startIndex + targetText.length();
             // Apply color to the target text
-            s.setSpan(new ForegroundColorSpan(Color.BLUE), startIndex, endIndex, 0);
+            s.setSpan(new ForegroundColorSpan(Color.parseColor("#bf194b")), startIndex, endIndex, 0);
         }
     }
 

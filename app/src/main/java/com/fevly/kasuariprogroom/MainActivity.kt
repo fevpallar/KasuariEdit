@@ -7,35 +7,29 @@ package com.fevly.kasuariprogroom
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import com.fevly.kasuariprogroom.constants.Keywords
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.fevly.kasuariprogroom.fragment.EditorFragment
 import com.fevly.kasuariprogroom.storage.Permission
 import com.fevly.kasuariprogroom.storage.StorageManager
 import com.fevly.kasuariprogroom.storage.StorageUtil
-import com.fevly.kasuariprogroom.textutil.ColorEvenWatcher
 import com.fevly.kasuariprogroom.textutil.TextProcessing
 import com.fevly.kasuariprogroom.transmission.KasuariNetworkChannelManager
+import com.google.android.material.tabs.TabLayout
 
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var editText: EditText
-    private lateinit var listView: ListView
-    private lateinit var save: Button
-    private lateinit var open: Button
 
     lateinit var permission: Permission
     lateinit var storageUtil: StorageUtil
@@ -43,9 +37,60 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var textProcessing: TextProcessing
     lateinit var kasuariNetworkChannelManager : KasuariNetworkChannelManager
+    lateinit var tabLayoutBelow: TabLayout
+    lateinit var viewPager: ViewPager
 
-    lateinit var keyword: Keywords
+    lateinit var tablayoutAbove: TabLayout
 
+    internal class ViewPagerAdapter(manager: FragmentManager?) :
+        FragmentPagerAdapter(manager!!) {
+        private val mFragmentList: MutableList<Fragment> = ArrayList<Fragment>()
+        private val mFragmentTitleList: MutableList<String> = ArrayList()
+        override fun getItem(position: Int): Fragment {
+            return mFragmentList[position]
+        }
+
+        override fun getCount(): Int {
+            return mFragmentList.size
+        }
+
+        fun addFrag(fragment: Fragment, title: String) {
+            mFragmentList.add(fragment)
+            mFragmentTitleList.add(title)
+        }
+
+        override fun getPageTitle(position: Int): CharSequence? {
+            return mFragmentTitleList[position]
+        }
+    }
+    private fun createTabIconsBelow() {
+        val tabOne = LayoutInflater.from(this).inflate(R.layout.custom_tab, null) as TextView
+        tabOne.text = "Game"
+        tabOne.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.note, 0, 0)
+        tabLayoutBelow.getTabAt(0)!!.customView = tabOne
+
+    }
+    private fun createTabIconsAbove() {
+        val tabOne = LayoutInflater.from(this).inflate(R.layout.custom_tab, null) as TextView
+        tabOne.text = "File1.."
+        tablayoutAbove.getTabAt(0)?.customView = tabOne
+    }
+
+    private fun createViewPager(viewPager: ViewPager) {
+        val adapter = ViewPagerAdapter(supportFragmentManager)
+        adapter.addFrag(EditorFragment(), "Editor..")
+//        adapter.addFrag(Fragment2(), "Tab 2")
+//        adapter.addFrag(Fragment3(), "Tab 3")
+        viewPager.adapter = adapter
+    }
+
+    private fun createViewPager2(viewPager: ViewPager) {
+        val adapter = ViewPagerAdapter(supportFragmentManager)
+        adapter.addFrag(EditorFragment(), "Editor..")
+//        adapter.addFrag(Fragment2(), "Tab 2")
+//        adapter.addFrag(Fragment3(), "Tab 3")
+        viewPager.adapter = adapter
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -53,19 +98,6 @@ class MainActivity : AppCompatActivity() {
         val actionBar: ActionBar? = supportActionBar
         actionBar?.hide()
 
-        // [sementara] init custome keywords
-        keyword = Keywords()
-        keyword.addKeyword("class", 'c')
-        keyword.addKeyword("String", 'c')
-        keyword.addKeyword("Float", 'c')
-        keyword.addKeyword("FileOutputStream", 'c')
-        keyword.addKeyword("main", 'f')
-        keyword.addKeyword("Integer", 'c')
-
-        keyword.mapToList() // convert list ke map (tdk bisa inflate lgsung dari map)
-
-
-        textProcessing = TextProcessing()
         permission = Permission()
         storageUtil = StorageUtil()
         storageManager = StorageManager(applicationContext)
@@ -73,112 +105,24 @@ class MainActivity : AppCompatActivity() {
         kasuariNetworkChannelManager.exposeServicePleaseDoItNowKasuari("sampleservicename",9999)
 
 
-        editText = findViewById(R.id.editText)
-        listView = findViewById(R.id.listview)
-        save = findViewById(R.id.save)
-        open = findViewById(R.id.browse)
-
         permission.askRuntimePermission(this)
 
-        val adapter = CustomAdapter(this, keyword.getKewordList())
-        listView.adapter = adapter
+
+        viewPager = findViewById<View>(R.id.viewpager) as ViewPager
+        createViewPager(viewPager)
+        tabLayoutBelow = findViewById<View>(R.id.tabs) as TabLayout
+        tabLayoutBelow.setupWithViewPager(viewPager)
+        createTabIconsBelow()
+        tablayoutAbove = findViewById<View>(R.id.tabstop) as TabLayout
+        tablayoutAbove.setupWithViewPager(viewPager)
+        createTabIconsAbove()
 
 
-        /*=============================================================================
-               Note: disini *issue description 25/03/2024 untuk akses internal app'dir
-
-             ==> Akses ke root internal app dir. sungguh, aduhaii..memusingkan
-
-              why?
-
-              - semenjak android >=10 . Priviledge system folder  sangat ketat
-                buth implementasi custome dari SAF (storage access framework)
-              - SAF. at least untuk implementasi disini. belum juga bisa grant priviledge ke internal dir. target
-               (bisa akses) tapi untuk bound file picker via Intent belum bisa
-              - exposing URI target generates "uri exposed exception.."
-
-
-             Misc issue
-                - exposing URI langsung ke intent seperti diblok secara internal dari android semenjak Android >=10.
-                 Entah karena rule tersebut ataukah memang ada semacam "restriction" di Sony Xperia ku.
-                -implementasi Uri internal api dari JAVA berbeda dgn Android
-                - protocol uri ada semacam 2. yg satu "file://" yg satunya (via SAF) "content//"
-
-             Attempts :
-
-                -  berbagai macam cara sy coba dari parsing root uri, sana-sini. Tapi tidak mau bound ke Intent
-
-================================================================================================*/
-//      val urinya = FileProvider.getUriForFile(this, "com.fevly.kasuariprogroom.provider", File(this.filesDir, "myfiles"))
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-//        intent.setDataAndType(urinya, "text/plain")
-        intent.setType("application/pdf")
-//        startActivityForResult(intent, 12)
-
-        editText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                val currText = s.toString()
-
-                Log.d("kasuariprogroom", "curr text = $currText")
-                Log.d("kasuariprogroom", "count = $count")
-                Log.d("kasuariprogroom", "start = $start")
-
-                // note 040424, start = total chars + total current space
-                // start tetap sama diposisi manapun, terupdate saat space ditrigger
-                if (count == 1 && currText[start] != ' ') { // trigger diposisi mana sj yg match keyword
-                    val parts = currText.split("\\s+".toRegex())
-                    val lastPart: String = parts.lastOrNull() ?: ""
-                    //Log.d("kasuariprogroom", "lastPart = $lastPart")
-                    val filterText: String = lastPart.trim().toLowerCase()
-                    //Log.d("kasuariprogroom", "filterText = $filterText")
-
-                    val filteredSuggestions =
-                        keyword.getKewordList().filter {
-                            it.label.toLowerCase().startsWith(filterText)
-                        }
-                    textProcessing.replaceAndGetUpdatedtext(
-                        start,
-                        count,
-                        currText,
-                        editText,
-                        listView,
-                        filteredSuggestions
-                    )
-
-                    updateSuggestions(filteredSuggestions)
-                } else {
-                    updateSuggestions(emptyList())
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-               var cIW = ColorEvenWatcher(editText)
-                cIW.setSpan("Float",s)
-                cIW.setSpan("Integer",s)
-                }
-        })
-
-
-        save.setOnClickListener(
-            View.OnClickListener {
-                if (storageManager.isExternalStorageWritable()) {
-                    storageManager.saveDatePrivate(editText.text.toString(), "samplename.java")
-                }
-            }
-        )
-
-        open.setOnClickListener(
-            View.OnClickListener {
-                if (storageManager.isExternalStorageWritable()) {
-                   storageManager.loadData("samplename.java", editText)
-
-                }
-            }
-        )
+      /*  viewPager2 = findViewById<View>(R.id.viewpager2) as ViewPager
+        createViewPager(viewPager2)
+        tabLayout2 = findViewById<View>(R.id.tabs2) as TabLayout
+        tabLayout2.setupWithViewPager(viewPager2)
+      */
     }
 
     @Deprecated("Deprecated in Java")
@@ -220,14 +164,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSuggestions(filteredSuggestions: List<CustomItem>) {
-        val adapter = CustomAdapter(this, filteredSuggestions)
-        listView.adapter = adapter
-        if (filteredSuggestions.isEmpty())
-            listView.visibility = ListView.GONE
-        else
-            listView.visibility = ListView.VISIBLE
 
-    }
+
+
 }
 
