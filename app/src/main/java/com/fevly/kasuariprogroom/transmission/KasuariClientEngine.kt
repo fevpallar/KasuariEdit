@@ -9,6 +9,17 @@ class KasuariClientEngine (_port: Int) {
     }
 
     fun getConn (): Socket {
-       return Socket("127.0.0.1", this.port)
+        // ini cegah overlap dng thread server di User.kt
+        // pastikan client engine start setelah server ready..
+        Thread.sleep(1000)
+
+        var sock = Socket()
+        try {
+          sock =  Socket("127.0.0.1", this.port)
+        }
+        catch (e : Exception){
+            print("cause : "+e.cause+"\n"+e.message)
+        }
+        return sock
     }
 }

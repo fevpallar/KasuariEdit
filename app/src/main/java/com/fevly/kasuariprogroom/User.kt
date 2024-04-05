@@ -18,9 +18,11 @@ fun main() {
     var currUserDatum = Datum(userID, userData)
     var user = User(currUserDatum)
 
-    Thread(
+
+    var userThread = Thread(
         user.connect(9999)
-    ).start()
+    )
+    userThread.start()
 
     /*==================================================
     Sample proper response :
@@ -62,9 +64,6 @@ fun main() {
 
 class User(_datum: Datum) {
 
-    var toMove = "0"
-    var cliendIdentificator = System.currentTimeMillis()
-    var board = Array(4) { Array(4) { "" } }
     lateinit var datum: Datum
 
     init {
@@ -95,6 +94,7 @@ class User(_datum: Datum) {
             var tempSrc = dataArray[2]
             if (tempUserID == this.datum.userID) {
                 // user yg sama dgn current user..
+                println("client dapat: " + receivedData)
             } else {
                 // nanti kedepan implementasi..
             }
@@ -103,7 +103,6 @@ class User(_datum: Datum) {
     }
 
     fun send(sock: Socket, message: Array<String>) {
-
         val outputStream = sock.getOutputStream()
         val objectOutputStream = ObjectOutputStream(outputStream)
         objectOutputStream.writeObject(message)
@@ -119,20 +118,5 @@ class User(_datum: Datum) {
 
     }
 
-    fun printBoxedArray(array: Array<Array<String>>) {
-        val maxStringLength = array.flatten().maxByOrNull { it.length }?.length ?: 0
-
-        val horizontalBorder = "+${"-".repeat(maxStringLength + 2)}+"
-        println(horizontalBorder)
-
-        for (row in array) {
-            print("| ")
-            for (element in row) {
-                val padding = " ".repeat(maxStringLength - element.length)
-                print("$element$padding | ")
-            }
-            println()
-        }
-    }
 }
 
