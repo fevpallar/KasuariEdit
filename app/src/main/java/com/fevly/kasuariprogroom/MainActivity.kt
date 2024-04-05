@@ -7,21 +7,25 @@ package com.fevly.kasuariprogroom
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import com.fevly.kasuariprogroom.constants.Keywords
 import com.fevly.kasuariprogroom.storage.Permission
 import com.fevly.kasuariprogroom.storage.StorageManager
 import com.fevly.kasuariprogroom.storage.StorageUtil
+import com.fevly.kasuariprogroom.textutil.ColorEvenWatcher
 import com.fevly.kasuariprogroom.textutil.TextProcessing
 import com.fevly.kasuariprogroom.transmission.KasuariNetworkChannelManager
 
@@ -46,11 +50,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
+        val actionBar: ActionBar? = supportActionBar
+        actionBar?.hide()
 
         // [sementara] init custome keywords
         keyword = Keywords()
         keyword.addKeyword("class", 'c')
+        keyword.addKeyword("String", 'c')
+        keyword.addKeyword("Float", 'c')
+        keyword.addKeyword("FileOutputStream", 'c')
         keyword.addKeyword("main", 'f')
         keyword.addKeyword("Integer", 'c')
 
@@ -147,7 +155,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+               var cIW = ColorEvenWatcher(editText)
+                cIW.setSpan("Float",s)
+                cIW.setSpan("Integer",s)
+                }
         })
 
 
@@ -182,7 +194,6 @@ class MainActivity : AppCompatActivity() {
             Log.d("kasuariprogroom", "uri file yg diselect " + currSelectedFile)
             val fileNamed = fileUri?.let { storageUtil.getFileNameFromUri(this, it) }
             if (fileNamed != null) {
-                // Do something with the filename
                 Log.d("kasuariprogroom", "namanya " + fileNamed)
             }
 
